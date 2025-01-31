@@ -6,7 +6,7 @@ Guodong Chen, Filip Hácha, Libor Váša, Mallesham Dasari
 
 This repository contains the official authors implementation associated with the paper **"TVMC: Time-Varying Mesh Compression Using Volume-Tracked Reference Meshes"**, which can be found [here] (to be added), accepted by [2025 ACM MMSys](https://2025.acmmmsys.org/).
 
-⚠️**Note: This is NOT the final version!**⚠️
+⚠️ **Note: This is NOT the final version!** ⚠️
 
 ## Step-by-step Tutorial
 
