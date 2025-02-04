@@ -1,5 +1,7 @@
 import argparse
 import os
+import re
+
 import numpy as np
 import open3d as o3d
 from sklearn.manifold import MDS
@@ -27,7 +29,11 @@ print("open3d version:", o3d.__version__)
 print(f"Dataset: {dataset}, Frames: {num_frames}, Centers: {num_centers}")
 
 output_file = f"{centers_dir}/{dataset}_distance_matrix_{num_frames}_{num_centers}.txt"
+
 xyz_files = [f for f in os.listdir(centers_dir) if f.endswith('.xyz')]
+re_pattern = re.compile('.+?(\d+)\.([a-zA-Z0-9+])')
+xyz_files = sorted(xyz_files, key=lambda x: int(re_pattern.match(x).groups()[0]))
+
 if not os.path.exists(output_file):
     max_distance_matrix = np.zeros((num_centers, num_centers))
 

@@ -1,4 +1,6 @@
 import os
+import re
+
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 import argparse
@@ -50,7 +52,7 @@ centers_dir = args.centers_dir
 firstIndex = args.firstIndex
 lastIndex = args.lastIndex
 
-mesh_path = f"../arap-volume-tracking/data/basketball"
+mesh_path = f"../arap-volume-tracking/data/{dataset}"
 
 data_base_path = f"../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}"
 data_subdirectories = ["centers", "meshes", "reference_center", "reference_mesh"]
@@ -74,8 +76,13 @@ for subdir in output_subdirectories:
     if not os.path.exists(path):
         os.makedirs(path)
 
+re_pattern = re.compile('.+?(\d+)\.([a-zA-Z0-9+])')
+
 obj_files = [f for f in os.listdir(mesh_path) if f.endswith('.obj')]
+obj_files = sorted(obj_files, key=lambda x: int(re_pattern.match(x).groups()[0]))
+
 xyz_files = [f for f in os.listdir(centers_dir) if f.endswith('.xyz')]
+xyz_files = sorted(xyz_files, key=lambda x: int(re_pattern.match(x).groups()[0]))
 
 for obj_file in obj_files[:num_frames]:
     file_path = os.path.join(mesh_path, obj_file)

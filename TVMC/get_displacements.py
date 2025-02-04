@@ -1,6 +1,5 @@
 import argparse
 import os
-
 import open3d as o3d
 import numpy as np
 from copy import deepcopy
@@ -83,7 +82,7 @@ lastIndex = args.lastIndex
 obj_files = [f for f in os.listdir(target_mesh_path) if f.endswith('.obj')]
 i = firstIndex
 for obj_file in obj_files:
-    dynamic_deformed = o3d.io.read_triangle_mesh(fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\output\{dataset}_{num_centers}\reference/deformed_reference_mesh_{i:03}.obj')
+    dynamic_deformed = o3d.io.read_triangle_mesh(f'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}/reference/deformed_reference_mesh_{i:03}.obj')
     original_i = o3d.io.read_triangle_mesh(os.path.join(target_mesh_path, obj_file))
 
     dynamic_deformed.compute_vertex_normals()
@@ -91,27 +90,27 @@ for obj_file in obj_files:
     #o3d.visualization.draw_geometries([reconstruct_dancer_i])
     fitting_mesh_dancer_i = subdivide_surface_fitting(dynamic_deformed, original_i, 1)
 
-    o3d.io.write_triangle_mesh(fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\output\{dataset}_{num_centers}\reference/fitting_mesh_{i:03}.obj', fitting_mesh_dancer_i, write_vertex_normals=False, write_vertex_colors=False, write_triangle_uvs=False)
+    o3d.io.write_triangle_mesh(f'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}/reference/fitting_mesh_{i:03}.obj', fitting_mesh_dancer_i, write_vertex_normals=False, write_vertex_colors=False, write_triangle_uvs=False)
     #o3d.visualization.draw_geometries([fitting_mesh_dancer_i])
     i += 1
 
-loaded_decimated_reference_mesh = o3d.io.read_triangle_mesh(fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\Data\{dataset}_{num_centers}\reference_mesh/decimated_reference_mesh.obj', enable_post_processing=False)
+loaded_decimated_reference_mesh = o3d.io.read_triangle_mesh(f'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/decimated_reference_mesh.obj', enable_post_processing=False)
 subdivided_decimated_reference_mesh = o3d.geometry.TriangleMesh.subdivide_midpoint(loaded_decimated_reference_mesh, number_of_iterations=1)
 subdivided_decimated_reference_mesh_vertices = np.array(subdivided_decimated_reference_mesh.vertices)
 
 displacements = []
 for i in range(firstIndex, lastIndex + 1):
-    fitting_mesh_dancer_i = read_triangle_mesh_with_trimesh(fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\output\{dataset}_{num_centers}\reference/fitting_mesh_{i:03}.obj', enable_post_processing=False)
+    fitting_mesh_dancer_i = read_triangle_mesh_with_trimesh(f'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}/reference/fitting_mesh_{i:03}.obj', enable_post_processing=False)
 
     fitting_mesh_vertices = np.array(fitting_mesh_dancer_i.vertices)
     displacement_i = fitting_mesh_vertices - subdivided_decimated_reference_mesh_vertices
-    np.savetxt(fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\output\{dataset}_{num_centers}\reference/displacements_{dataset}_{i:03}.txt', displacement_i, fmt='%8f')
+    np.savetxt(f'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}/reference/displacements_{dataset}_{i:03}.txt', displacement_i, fmt='%8f')
     displacements.append(displacement_i)
 
 
 
 for i in range(firstIndex, lastIndex + 1):
-    displacement = np.loadtxt(fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\output\{dataset}_{num_centers}\reference/displacements_{dataset}_{i:03}.txt')
+    displacement = np.loadtxt(f'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}/reference/displacements_{dataset}_{i:03}.txt')
     pcd = o3d.geometry.PointCloud()
     points = displacement
     pcd.points = o3d.utility.Vector3dVector(points)
@@ -119,4 +118,4 @@ for i in range(firstIndex, lastIndex + 1):
     dtype = o3d.core.float32
     p_tensor = o3d.core.Tensor(points, dtype=dtype)
     pc = o3d.t.geometry.PointCloud(p_tensor)
-    o3d.t.io.write_point_cloud(fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\Data\{dataset}_{num_centers}\reference_mesh/dis_{dataset}_{i:03}.ply', pc, write_ascii=True)
+    o3d.t.io.write_point_cloud(f'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/dis_{dataset}_{i:03}.ply', pc, write_ascii=True)

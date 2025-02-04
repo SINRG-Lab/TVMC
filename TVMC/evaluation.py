@@ -20,6 +20,7 @@ parser.add_argument('--fileNamePrefix', type=str, required=True, help="fileNameP
 parser.add_argument('--encoderPath', type=str, required=True, help="encoderPath")
 parser.add_argument('--decoderPath', type=str, required=True, help="decoderPath")
 parser.add_argument('--qp', type=int, required=True, help="qp")
+parser.add_argument('--outputPath', type=str, required=True, help="Path for reconstructed mesh")
 
 
 args = parser.parse_args()
@@ -33,6 +34,7 @@ fileNamePrefix = args.fileNamePrefix
 encoderPath = args.encoderPath
 decoderPath = args.decoderPath
 qp = args.qp
+outputPath = args.outputPath
 
 
 def subdivide_surface_fitting(decimated_mesh, target_mesh, iterations=1):
@@ -171,18 +173,18 @@ def compute_Hausdorff(original_mesh, decoded_mesh):
 
 
 for i in range(firstIndex, lastIndex + 1):
-    dynamic_deformed = o3d.io.read_triangle_mesh(fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}\reference/deformed_reference_mesh_{i:03}.obj')
+    dynamic_deformed = o3d.io.read_triangle_mesh(fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}/reference/deformed_reference_mesh_{i:03}.obj')
     original_i = o3d.io.read_triangle_mesh(fr'../arap-volume-tracking/data/{dataset}/{fileNamePrefix}{i:03}.obj')
     dynamic_deformed.compute_vertex_normals()
     original_i.compute_vertex_normals()
     fitting_mesh_dancer_i = subdivide_surface_fitting(dynamic_deformed, original_i, 1)
     o3d.io.write_triangle_mesh(
-        fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}\reference/fitting_mesh_{i:03}.obj',
+        fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}/reference/fitting_mesh_{i:03}.obj',
         fitting_mesh_dancer_i, write_vertex_normals=False, write_vertex_colors=False, write_triangle_uvs=False)
     # o3d.visualization.draw_geometries([fitting_mesh_dancer_i])
 
 loaded_decimated_reference_mesh = o3d.io.read_triangle_mesh(
-    fr'G:\Github\TVMC\tvm-editing\TVMEditor.Test\bin\Release\net5.0\Data\{dataset}_{num_centers}\reference_mesh/decimated_reference_mesh.obj', enable_post_processing=False)
+    fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/decimated_reference_mesh.obj', enable_post_processing=False)
 subdivided_decimated_reference_mesh = o3d.geometry.TriangleMesh.subdivide_midpoint(loaded_decimated_reference_mesh, number_of_iterations=1)
 subdivided_decimated_reference_mesh_vertices = np.array(subdivided_decimated_reference_mesh.vertices)
 # o3d.visualization.draw_geometries([subdivided_decimated_reference_mesh])
@@ -190,10 +192,10 @@ subdivided_decimated_reference_mesh_vertices = np.array(subdivided_decimated_ref
 displacements = []
 for i in range(firstIndex, lastIndex + 1):
     fitting_mesh_dancer_i = read_triangle_mesh_with_trimesh(
-        fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}\reference/fitting_mesh_{i:03}.obj', enable_post_processing=False)
+        fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}/reference/fitting_mesh_{i:03}.obj', enable_post_processing=False)
     fitting_mesh_vertices = np.array(fitting_mesh_dancer_i.vertices)
     displacement_i = fitting_mesh_vertices - subdivided_decimated_reference_mesh_vertices
-    np.savetxt(fr'G:\Github\TVMC\tvm-editing\TVMEditor.Test\bin\Release\net5.0\output\{dataset}_1995\reference/displacements_{dataset}_{i:03}.txt', displacement_i, fmt='%8f')
+    np.savetxt(fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_1995/reference/displacements_{dataset}_{i:03}.txt', displacement_i, fmt='%8f')
     displacements.append(displacement_i)
 
 
@@ -207,7 +209,7 @@ for i in range(firstIndex, lastIndex):
     dtype = o3d.core.float32
     p_tensor = o3d.core.Tensor(points, dtype=dtype)
     pc = o3d.t.geometry.PointCloud(p_tensor)
-    o3d.t.io.write_point_cloud(fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data\{dataset}_{num_centers}\reference_mesh/dis_{dataset}_{i:03}.ply', pc, write_ascii=True)
+    o3d.t.io.write_point_cloud(fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/dis_{dataset}_{i:03}.ply', pc, write_ascii=True)
 
 input_reference_mesh_path = fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/decimated_reference_mesh.obj'
 input_decimated_reference_mesh = o3d.io.read_triangle_mesh(input_reference_mesh_path, enable_post_processing=False)
@@ -233,8 +235,8 @@ print(result.stderr)
 
 
 times = []
-input_encoder_path = fr"G:\Github\TVMC\tvm-editing\TVMEditor.Test\bin\Release\net5.0\Data\{dataset}_{num_centers}\reference_mesh"
-output_encoder_path = fr"G:\Github\TVMC\tvm-editing\TVMEditor.Test\bin\Release\net5.0\Data\{dataset}_{num_centers}\reference_mesh/GoF{num_frames}"
+input_encoder_path = fr"../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh"
+output_encoder_path = fr"../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/GoF{num_frames}"
 print(input_encoder_path)
 if not os.path.exists(output_encoder_path):
     os.makedirs(output_encoder_path)
@@ -250,7 +252,7 @@ for i in range(firstIndex, lastIndex + 1):
         '-cl', '10'
     ], capture_output=True, text=True)
     print(result.stdout)
-    time_pattern = re.compile(r"\((\d+) ms to encode\)")
+    time_pattern = re.compile(r"/((/d+) ms to encode/)")
     match = time_pattern.search(result.stdout)
     if match:
         times.append(int(match.group(1)))
@@ -258,20 +260,20 @@ for i in range(firstIndex, lastIndex + 1):
 if times:
     mean_time = sum(times) / len(times)
     print(f"Mean encoding time: {mean_time:.2f} ms")
-print(f"Average encoding time for qp {qp}: {mean_time:.2f} ms\n\n")
+#print(f"Average encoding time for qp {qp}: {mean_time:.2f} ms/n/n")
 
 times = []
 for i in range(11, 21):
     result = subprocess.run([
         decoderPath,
         '-i',
-        fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data\{dataset}_{num_centers}/reference_mesh/GoF{num_frames}/dis_{dataset}_{i:03}.drc',
+        fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/GoF{num_frames}/dis_{dataset}_{i:03}.drc',
         '-o',
-        fr'../tvm-editing\TVMEditor.Test\bin\Release\net5.0\Data\{dataset}_{num_centers}\reference_mesh/GoF{num_frames}/decoded_{dataset}_{i:03}_displacements.ply'
+        fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/GoF{num_frames}/decoded_{dataset}_{i:03}_displacements.ply'
     ], capture_output=True, text=True)
     print(result.stdout)
 
-    time_pattern = re.compile(r"\((\d+) ms to decode\)")
+    time_pattern = re.compile(r"/((/d+) ms to decode/)")
     match = time_pattern.search(result.stdout)
     if match:
         times.append(int(match.group(1)))
@@ -279,7 +281,7 @@ for i in range(11, 21):
 if times:
     mean_time = sum(times) / len(times)
     print(f"Mean encoding time: {mean_time:.2f} ms")
-print(f"Average encoding time for qp {qp}: {mean_time:.2f} ms\n\n")
+#print(f"Average encoding time for qp {qp}: {mean_time:.2f} ms/n/n")
 
 
 
@@ -320,11 +322,11 @@ decoded_displacements = []
 dis_plys = []
 for i in range(firstIndex, lastIndex + 1):
     original_displacement = np.loadtxt(
-        fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\output\{dataset}_{num_centers}/reference/displacements_{dataset}_{i:03}.txt')
+        fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}/reference/displacements_{dataset}_{i:03}.txt')
     decoded_displacement = o3d.io.read_point_cloud(
-        fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\Data\{dataset}_{num_centers}\reference_mesh/GoF{num_frames}/decoded_{dataset}_{i:03}_displacements.ply')
+        fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/GoF{num_frames}/decoded_{dataset}_{i:03}_displacements.ply')
     dis_ply = o3d.io.read_point_cloud(
-        fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\Data\{dataset}_{num_centers}\reference_mesh/GoF{num_frames}/decoded_{dataset}_{i:03}_displacements.ply')
+        fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/GoF{num_frames}/decoded_{dataset}_{i:03}_displacements.ply')
     original_displacements.append(original_displacement)
     decoded_displacements.append(decoded_displacement)
     dis_plys.append(dis_ply)
@@ -335,25 +337,22 @@ d2s = []
 mses = []
 rmses = []
 hausdorffs = []
+if not os.path.exists(outputPath):
+    os.makedirs(outputPath)
 for m in range(0, num_frames):
     offset = firstIndex
     decode_decimated_reference_mesh = o3d.io.read_triangle_mesh(
-        fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\Data\{dataset}_{num_centers}\reference_mesh/decode_decimated_reference_mesh.obj',
+        fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/decode_decimated_reference_mesh.obj',
         enable_post_processing=False)
-    # print(decode_decimated_reference_mesh)
     np.array(decode_decimated_reference_mesh.vertices)
     start = time.time()
     subdivided_decoded_mesh = o3d.geometry.TriangleMesh.subdivide_midpoint(decode_decimated_reference_mesh, number_of_iterations=1)
     mesh = deepcopy(subdivided_decoded_mesh)
     triangles = deepcopy(mesh.triangles)
     end = time.time()
-    #print("subdivision time:", end - start)
-    # print(subdivided_decoded_mesh)
-    input_decimated_reference_mesh = o3d.io.read_triangle_mesh(fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\Data\{dataset}_{num_centers}\reference_mesh/decimated_reference_mesh.obj', enable_post_processing=False)
+    input_decimated_reference_mesh = o3d.io.read_triangle_mesh(fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/decimated_reference_mesh.obj', enable_post_processing=False)
     subdivided_mesh = o3d.geometry.TriangleMesh.subdivide_midpoint(input_decimated_reference_mesh, number_of_iterations=1)
-    # print(subdivided_mesh)
-    original_dancer = o3d.io.read_triangle_mesh(fr'..\tvm-editing\TVMEditor.Test\bin\Release\net5.0\Data\{dataset}_{num_centers}\meshes/{fileNamePrefix}{m + offset:03}.obj')
-    # print(original_dancer)
+    original_mesh = o3d.io.read_triangle_mesh(fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/meshes/{fileNamePrefix}{m + offset:03}.obj')
     decoded_mesh_vertices = np.array(decode_decimated_reference_mesh.vertices)
     subdivided_decoded_mesh_vertices = np.array(subdivided_decoded_mesh.vertices)
 
@@ -372,39 +371,34 @@ for m in range(0, num_frames):
     for i in range(0, len(subdivided_decoded_mesh_vertices)):
         [k, index, _] = pcd_tree.search_knn_vector_3d(subdivided_decoded_mesh_vertices[i], 1)
         [j, dis_index, _] = dis_tree.search_knn_vector_3d(original_displacements[m][index[0]], 1)
-        # print(displacement[dis_index], original_displacements[index[0]])
         reordered_vertices[i] += displacement[dis_index[0]]
     end = time.time()
-    print("rematching time:", end - start)
+
     reconstruct_mesh = o3d.geometry.TriangleMesh()
     reconstruct_mesh.triangles = subdivided_decoded_mesh.triangles
     reconstruct_mesh.vertices = o3d.utility.Vector3dVector(reordered_vertices)
     reconstruct_mesh.compute_vertex_normals()
-    o3d.visualization.draw_geometries([reconstruct_mesh])
-    # o3d.io.write_triangle_mesh(fr'G:\PycharmProjects\Mesh_Editing\Results\decode_Ours\{dataset}/GoF{GoF}/decoded_{dataset}_fr0{m+offset:03}.obj', reconstruct_mesh, write_vertex_normals=False, write_vertex_colors=False, write_triangle_uvs=False)
-
-    d1 = max(compute_D1_psnr(original_dancer, reconstruct_mesh), compute_D1_psnr(reconstruct_mesh, original_dancer))
+    #o3d.visualization.draw_geometries([reconstruct_mesh])
+    o3d.io.write_triangle_mesh(os.path.join(outputPath, f"decoded_{dataset}_fr0{m+offset:03}.obj"), reconstruct_mesh, write_vertex_normals=False, write_vertex_colors=False, write_triangle_uvs=False)
+    print(f"Mesh 0{m+offset:03} saved! Objective Evaluation:\n")
+    d1 = max(compute_D1_psnr(original_mesh, reconstruct_mesh), compute_D1_psnr(reconstruct_mesh, original_mesh))
     print("D1:", d1)
     d1s.append(d1)
 
-    d2 = max(compute_D2_psnr(original_dancer, reconstruct_mesh), compute_D2_psnr(reconstruct_mesh, original_dancer))
+    d2 = max(compute_D2_psnr(original_mesh, reconstruct_mesh), compute_D2_psnr(reconstruct_mesh, original_mesh))
     print("D2:", d2)
     d2s.append(d2)
 
-    logmse1, logrmse1 = compute_MSE_RMSE(original_dancer, reconstruct_mesh)
-    logmse2, logrmse2 = compute_MSE_RMSE(reconstruct_mesh, original_dancer)
+    logmse1, logrmse1 = compute_MSE_RMSE(original_mesh, reconstruct_mesh)
+    logmse2, logrmse2 = compute_MSE_RMSE(reconstruct_mesh, original_mesh)
     logmse = min(logmse1, logmse2)
     logrmse = min(logrmse1, logrmse2)
     print("log10 of mse:", logmse, ", log10 of rmse:", logrmse)
     mses.append(logmse)
     rmses.append(logrmse)
 
-    hausdorff = compute_Hausdorff(original_dancer, reconstruct_mesh)
-    print("Hausdorff distance:", hausdorff)
-    hausdorffs.append(hausdorff)
-o3d.visualization.draw_geometries([reconstruct_mesh])
+#o3d.visualization.draw_geometries([reconstruct_mesh])
 print("average D1:", np.mean(d1s))
 print("average D2:", np.mean(d2s))
 print("average log10 of mse:", np.mean(mses))
 print("average log10 of rmse:", np.mean(rmses))
-print("average Hausdorff:", np.mean(hausdorffs))
