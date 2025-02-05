@@ -6,6 +6,17 @@ Guodong Chen, Filip Hácha, Libor Váša, Mallesham Dasari
 
 This repository contains the official authors implementation associated with the paper **"TVMC: Time-Varying Mesh Compression Using Volume-Tracked Reference Meshes"**, which can be found [here](https://arxiv.org/abs/2407.02457), accepted by [2025 ACM MMSys](https://2025.acmmmsys.org/).
 
+## System Requirements
+
+- **Operating System:** Windows 11 or Ubuntu 20.04
+- **Python:** 3.8
+- Dependencies:
+  - `numpy`
+  - `open3d==0.18.0`
+  - `scikit-learn`
+  - `scipy`
+  - `trimesh==4.1.0`
+
 ## Running with Docker
 
 Follow these steps to build and run the Docker image:
@@ -31,6 +42,7 @@ docker run --rm -it tvmc-linux
 Once inside the Docker container, grant execute permissions to the `run_pipeline.sh` script and execute it:
 
 ```
+conda activate open3d_env
 chmod +x run_pipeline.sh
 sudo ./run_pipeline.sh
 ```
@@ -43,7 +55,7 @@ The pipeline will start, and the required tasks will be executed sequentially.
 
 ## Running TVMC on Your Own Machine
 
-If you want to run TVMC on your own machine using your own dataset, here’s how you can set it up.
+If you want to run TVMC on your own machine using your own dataset, here’s how you can set it up. We've tested this on Windows 11 and Ubuntu 20.04.
 
 (Provide the detailed steps here for running the pipeline outside of Docker)
 
@@ -184,8 +196,6 @@ for Linux:
 TVMEditor.Test/bin/Release/net5.0/TVMEditor.Test basketball 1 11 20 "./TVMEditor.Test/bin/Release/net5.0/Data/basketball_player_1995/" "./TVMEditor.Test/bin/Release/net5.0/output/basketball_player_1995/"
 ```
 
-
-
 Navigate to TVMC root again:
 
 ```
@@ -263,16 +273,10 @@ cmake ../
 make
 ```
 
-On Mac OS X, run the following command to generate Xcode projects:
+Draco paths (please change based on your project):
 
-```
-$ cmake ../ -G Xcode
-```
-
-Draco paths:
-
-- Encoder: `./draco/build/Release/draco_encoder.exe`
-- Decoder: `./draco/build/Release/draco_decoder.exe`
+- Encoder: `./draco/build/Release/draco_encoder.exe` / `./draco/build/draco_encoder` 
+- Decoder: `./draco/build/Release/draco_decoder.exe` / `./draco/build/draco_decoder` 
 
 Navigate to TVMC root again:
 

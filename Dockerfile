@@ -3,6 +3,8 @@ FROM ubuntu:20.04
 # Set noninteractive mode for apt-get
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN apt-get update && apt-get install -y --no-install-recommends apt-transport-https ca-certificates
+
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     wget \
