@@ -18,48 +18,49 @@ namespace TVMEditor.Test.Experiments
             var sequence = MeshIO.LoadSequenceFromObj($"{inputDir}/meshes");
             var centers = CentersIO.LoadCentersFiles($"{inputDir}/centers");
 
-            
-            for (int index = 1; index < 11; index++)
+            if (mode == "1")
             {
-                Console.WriteLine($"Dealing with index={index}");
-                var (indices, transformations) = TransformationsIO.LoadIndexedTransformations($"{inputDir}/indices_{index:000}.txt", $"{inputDir}/transformations_{index:000}.txt");
-                var affinityCalculation = new DistanceDirectionAffinityCalculation
+                for (int index = firstIndex; index < lastIndex + 1; index++)
                 {
-                    ShapeDistance = 1f
-                };
-                var centersDeformations = new AffinityCenterDeformation(affinityCalculation);
-                var surfaceDeformation = new CustomSurfaceDeformation(affinityCalculation);
-                var transformPropagation = new KabschTransformPropagation(affinityCalculation);
+                    Console.WriteLine($"Dealing with index={index}");
+                    var (indices, transformations) = TransformationsIO.LoadIndexedTransformations($"{inputDir}/indices_{index:000}.txt", $"{inputDir}/transformations_{index:000}.txt");
+                    var affinityCalculation = new DistanceDirectionAffinityCalculation
+                    {
+                        ShapeDistance = 1f
+                    };
+                    var centersDeformations = new AffinityCenterDeformation(affinityCalculation);
+                    var surfaceDeformation = new CustomSurfaceDeformation(affinityCalculation);
+                    var transformPropagation = new KabschTransformPropagation(affinityCalculation);
 
-                var editor = new MeshEditor(affinityCalculation, centersDeformations, null, surfaceDeformation, transformPropagation);
-                editor.Deform(sequence, centers, indices, transformations, index-1, out var deformedSequence, out var deformedCenters);
-                MeshIO.WriteMeshToObj($"{outputDir}/Mitch/output/deformed_{index:000}.obj", deformedSequence.Meshes[index-1]);
-                //MeshIO.WriteSequenceToObj($"{outputDir}/Dancer/dq", deformedSequence);
+                    var editor = new MeshEditor(affinityCalculation, centersDeformations, null, surfaceDeformation, transformPropagation);
+                    editor.Deform(sequence, centers, indices, transformations, index - firstIndex, out var deformedSequence, out var deformedCenters);
+                    MeshIO.WriteMeshToObj($"{outputDir}/output/deformed_{index:000}.obj", deformedSequence.Meshes[index - firstIndex]);
+                    //MeshIO.WriteSequenceToObj($"{outputDir}/Dancer/dq", deformedSequence);
+                }
             }
-            
-
-
-            
-            Console.WriteLine("Reference mesh deformation...");
-            var reference_sequence = MeshIO.LoadSequenceFromObj($"{inputDir}/reference_mesh");
-            var reference_centers = CentersIO.LoadCentersFiles($"{inputDir}/reference_center");
-            for (int index = 1; index < 11; index++)
+            else if (mode == "2")
             {
-                Console.WriteLine($"Deform Reference mesh to Mitch {index}...");
-                var (indices, transformations) = TransformationsIO.LoadIndexedTransformations($"{inputDir}/indices_{index:000}.txt", $"{inputDir}/inverse_transformations_{index:000}.txt");
-                var affinityCalculation = new DistanceDirectionAffinityCalculation
+                Console.WriteLine("Reference mesh deformation...");
+                var reference_sequence = MeshIO.LoadSequenceFromObj($"{inputDir}/reference_mesh");
+                var reference_centers = CentersIO.LoadCentersFiles($"{inputDir}/reference_center");
+                for (int index = firstIndex; index < lastIndex + 1; index++)
                 {
-                    ShapeDistance = 1f
-                };
-                var centersDeformations = new AffinityCenterDeformation(affinityCalculation);
-                var surfaceDeformation = new CustomSurfaceDeformation(affinityCalculation);
-                var transformPropagation = new KabschTransformPropagation(affinityCalculation);
+                    Console.WriteLine($"Deform Reference mesh to Mitch {index}...");
+                    var (indices, transformations) = TransformationsIO.LoadIndexedTransformations($"{inputDir}/indices_{index:000}.txt", $"{inputDir}/inverse_transformations_{index:000}.txt");
+                    var affinityCalculation = new DistanceDirectionAffinityCalculation
+                    {
+                        ShapeDistance = 1f
+                    };
+                    var centersDeformations = new AffinityCenterDeformation(affinityCalculation);
+                    var surfaceDeformation = new CustomSurfaceDeformation(affinityCalculation);
+                    var transformPropagation = new KabschTransformPropagation(affinityCalculation);
 
-                var editor = new MeshEditor(affinityCalculation, centersDeformations, null, surfaceDeformation, transformPropagation);
-                editor.Deform(reference_sequence, reference_centers, indices, transformations, 0, out var deformedSequence, out var deformedCenters);
-                MeshIO.WriteMeshToObj($"{outputDir}/Mitch/reference/deformed_reference_mesh_{index:000}.obj", deformedSequence.Meshes[0]);
+                    var editor = new MeshEditor(affinityCalculation, centersDeformations, null, surfaceDeformation, transformPropagation);
+                    editor.Deform(reference_sequence, reference_centers, indices, transformations, 0, out var deformedSequence, out var deformedCenters);
+                    MeshIO.WriteMeshToObj($"{outputDir}/reference/deformed_reference_mesh_{index:000}.obj", deformedSequence.Meshes[0]);
+                }
+
             }
-            
         }
     }
 }

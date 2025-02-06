@@ -123,9 +123,9 @@ Volume tracking results are saved in the `<outDir>` folder:
 - `.xyz` files: coordinates of volume centers
 - `.txt` files: transformations of centers between frames
 
-### Global Optimization (Optional but Recommended)
+### Global Optimization (Optional)
 
-Global optimization refines volume centers by removing abnormal volume centers and adjusting positions for the remains to reduce distortions.
+Global optimization refines volume centers by removing abnormal volume centers and adjusting positions for the remains to reduce distortions. 
 
 ```
 dotnet ./bin/Client.dll ./config/impr/config-basketball-impr.xml
@@ -174,13 +174,13 @@ Switch to .NET 5.0.
 ```
 sudo apt-get install -y dotnet-sdk-5.0
 sudo apt-get install -y aspnetcore-runtime-5.0
-dotnet new globaljson --sdk-version 5.0.408
 ```
 
 Navigate to the `tvm-editing` directory and build:
 
 ```
 cd ../tvm-editing
+dotnet new globaljson --sdk-version 5.0.408
 dotnet build TVMEditor.sln --configuration Release --no-incremental
 ```
 

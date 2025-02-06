@@ -35,6 +35,7 @@ parser.add_argument('--inputDir', type=str, required=True, help="Input path for 
 parser.add_argument('--outputDir', type=str, required=True, help="Output path for the reference mesh")
 parser.add_argument('--firstIndex', type=int, required=True, help="first index")
 parser.add_argument('--lastIndex', type=int, required=True, help="last index")
+parser.add_argument('--key', type=int, required=True, help="key mesh")
 
 args = parser.parse_args()
 
@@ -45,6 +46,7 @@ inputDir = args.inputDir
 outputDir = args.outputDir
 firstIndex = args.firstIndex
 lastIndex = args.lastIndex
+key = args.key
 
 
 
@@ -62,10 +64,11 @@ reference_pcd.normals = o3d.utility.Vector3dVector(all_meshes.vertex_normals)
 
 
 
-GoF = num_frames
-key = 9  # index of the key frame to fit (self-contact degree evaluation)
+GoF = 0
+# key index of the key frame to fit (self-contact degree evaluation)
 fitting_meshes = []
 for i in range(0, num_frames):
+    GoF += 1
     if i == key:
         continue
     deformed_number_of_triangles = round(np.array(deformed_meshes[key].triangles).__len__() / 4)

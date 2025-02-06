@@ -36,6 +36,8 @@ decoderPath = args.decoderPath
 qp = args.qp
 outputPath = args.outputPath
 
+decoding_time = 0
+
 
 def subdivide_surface_fitting(decimated_mesh, target_mesh, iterations=1):
     subdivided_mesh = o3d.geometry.TriangleMesh.subdivide_midpoint(decimated_mesh, number_of_iterations=iterations)
@@ -195,7 +197,7 @@ for i in range(firstIndex, lastIndex + 1):
         fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}/reference/fitting_mesh_{i:03}.obj', enable_post_processing=False)
     fitting_mesh_vertices = np.array(fitting_mesh_dancer_i.vertices)
     displacement_i = fitting_mesh_vertices - subdivided_decimated_reference_mesh_vertices
-    np.savetxt(fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_1995/reference/displacements_{dataset}_{i:03}.txt', displacement_i, fmt='%8f')
+    np.savetxt(fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/{dataset}_{num_centers}/reference/displacements_{dataset}_{i:03}.txt', displacement_i, fmt='%8f')
     displacements.append(displacement_i)
 
 
@@ -232,6 +234,11 @@ result = subprocess.run([
 ], capture_output=True, text=True)
 print(result.stdout)
 print(result.stderr)
+time_pattern = re.compile(r"(\d+) ms to encode")
+match = time_pattern.search(result.stdout)
+if match:
+    print(f"reference mesh decoding: {int(match.group(1))} ms")
+    decoding_time += int(match.group(1))
 
 
 times = []
@@ -252,18 +259,18 @@ for i in range(firstIndex, lastIndex + 1):
         '-cl', '10'
     ], capture_output=True, text=True)
     print(result.stdout)
-    time_pattern = re.compile(r"/((/d+) ms to encode/)")
+    time_pattern = re.compile(r"(\d+) ms to encode")
     match = time_pattern.search(result.stdout)
     if match:
         times.append(int(match.group(1)))
 
 if times:
     mean_time = sum(times) / len(times)
-    print(f"Mean encoding time: {mean_time:.2f} ms")
+    print(f"Mean encoding time: {mean_time:.6f} ms")
 #print(f"Average encoding time for qp {qp}: {mean_time:.2f} ms/n/n")
 
 times = []
-for i in range(11, 21):
+for i in range(firstIndex, lastIndex + 1):
     result = subprocess.run([
         decoderPath,
         '-i',
@@ -273,14 +280,15 @@ for i in range(11, 21):
     ], capture_output=True, text=True)
     print(result.stdout)
 
-    time_pattern = re.compile(r"/((/d+) ms to decode/)")
+    time_pattern = re.compile(r"(\d+) ms to decode")
     match = time_pattern.search(result.stdout)
     if match:
         times.append(int(match.group(1)))
+        decoding_time += int(match.group(1))
 
 if times:
     mean_time = sum(times) / len(times)
-    print(f"Mean encoding time: {mean_time:.2f} ms")
+    print(f"Mean decoding time: {mean_time:.6f} ms")
 #print(f"Average encoding time for qp {qp}: {mean_time:.2f} ms/n/n")
 
 
@@ -339,6 +347,9 @@ rmses = []
 hausdorffs = []
 if not os.path.exists(outputPath):
     os.makedirs(outputPath)
+
+subdivision_times = 0
+deform_times = 0
 for m in range(0, num_frames):
     offset = firstIndex
     decode_decimated_reference_mesh = o3d.io.read_triangle_mesh(
@@ -347,9 +358,10 @@ for m in range(0, num_frames):
     np.array(decode_decimated_reference_mesh.vertices)
     start = time.time()
     subdivided_decoded_mesh = o3d.geometry.TriangleMesh.subdivide_midpoint(decode_decimated_reference_mesh, number_of_iterations=1)
+    end = time.time()
+    subdivision_times += end - start
     mesh = deepcopy(subdivided_decoded_mesh)
     triangles = deepcopy(mesh.triangles)
-    end = time.time()
     input_decimated_reference_mesh = o3d.io.read_triangle_mesh(fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/reference_mesh/decimated_reference_mesh.obj', enable_post_processing=False)
     subdivided_mesh = o3d.geometry.TriangleMesh.subdivide_midpoint(input_decimated_reference_mesh, number_of_iterations=1)
     original_mesh = o3d.io.read_triangle_mesh(fr'../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/{dataset}_{num_centers}/meshes/{fileNamePrefix}{m + offset:03}.obj')
@@ -371,8 +383,10 @@ for m in range(0, num_frames):
     for i in range(0, len(subdivided_decoded_mesh_vertices)):
         [k, index, _] = pcd_tree.search_knn_vector_3d(subdivided_decoded_mesh_vertices[i], 1)
         [j, dis_index, _] = dis_tree.search_knn_vector_3d(original_displacements[m][index[0]], 1)
+        start = time.time()
         reordered_vertices[i] += displacement[dis_index[0]]
-    end = time.time()
+        end = time.time()
+        deform_times += end - start
 
     reconstruct_mesh = o3d.geometry.TriangleMesh()
     reconstruct_mesh.triangles = subdivided_decoded_mesh.triangles
@@ -397,6 +411,9 @@ for m in range(0, num_frames):
     mses.append(logmse)
     rmses.append(logrmse)
 
+decoding_time += subdivision_times*1000/num_frames
+decoding_time += deform_times*1000/num_frames
+print(f"decoding time: {decoding_time} ms")
 #o3d.visualization.draw_geometries([reconstruct_mesh])
 print("average D1:", np.mean(d1s))
 print("average D2:", np.mean(d2s))
