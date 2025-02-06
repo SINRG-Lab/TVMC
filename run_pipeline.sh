@@ -46,7 +46,7 @@ python ./evaluation.py --dataset basketball_player --num_frames 10 --num_centers
 
 cd ../arap-volume-tracking
 
-dotnet new globaljson --sdk-version 7.0.306 --force
+dotnet new globaljson --sdk-version 7.0.410 --force
 
 dotnet ./bin/Client.dll ./config/max/config-dancer-max.xml
 
@@ -121,7 +121,7 @@ python ./evaluation.py --dataset mitch --num_frames 10 --num_centers 2000 --firs
 
 cd ../arap-volume-tracking
 
-dotnet new globaljson --sdk-version 7.0.306 --force
+dotnet new globaljson --sdk-version 7.0.410 --force
 
 dotnet ./bin/Client.dll ./config/max/config-thomas-max.xml
 
