@@ -387,7 +387,7 @@ for m in range(0, num_frames):
         reordered_vertices[i] += displacement[dis_index[0]]
         end = time.time()
         deform_times += end - start
-
+    #print("time ",deform_times)
     reconstruct_mesh = o3d.geometry.TriangleMesh()
     reconstruct_mesh.triangles = subdivided_decoded_mesh.triangles
     reconstruct_mesh.vertices = o3d.utility.Vector3dVector(reordered_vertices)
@@ -413,6 +413,7 @@ for m in range(0, num_frames):
 
 decoding_time += subdivision_times*1000/num_frames
 decoding_time += deform_times*1000/num_frames
+
 print(f"decoding time: {decoding_time} ms")
 #o3d.visualization.draw_geometries([reconstruct_mesh])
 print("average D1:", np.mean(d1s))

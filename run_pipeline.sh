@@ -152,3 +152,8 @@ cd ../TVMC
 python ./get_displacements.py --dataset thomas --num_frames 10 --num_centers 2000 --target_mesh_path ../arap-volume-tracking/data/thomas --firstIndex 1 --lastIndex 10
 
 python ./evaluation.py --dataset thomas --num_frames 10 --num_centers 2000 --firstIndex 1 --lastIndex 10 --fileNamePrefix thomas_fr0 --encoderPath ../draco/build/draco_encoder --decoderPath ../draco/build/draco_decoder --qp 10 --outputPath ./thomas_outputs
+
+
+## generate figures
+
+python ./objective_results_all.py

@@ -88,12 +88,14 @@ conda activate open3d_env
 
 
 
-For windows you can use anaconda.
+For windows you can use Visual Studio to install .NET 7.0 and anaconda to create python environment.
+
+
 
 Clone this project:
 
 ```
-git clone https://github.com/frozzzen3/TVMC.git
+git clone https://github.com/SINRG-Lab/TVMC.git
 ```
 
 ## Step 1: As-Rigid-As-Possible (ARAP) Volume Tracking
@@ -138,7 +140,7 @@ Additional time-varying mesh sequences are available in `./arap-volume-tracking/
 To run ARAP volume tracking on a custom dataset:
 
 ```
-dotnet ./bin/client.dll <config_file.xml>
+dotnet ./bin/Client.dll <config_file.xml>
 ```
 
 ## Step 2: Generate Reference Centers Using Multi-Dimensional Scaling (MDS)
@@ -169,7 +171,7 @@ python ./get_transformation.py --dataset basketball_player --num_frames 10 --num
 
 ## Step 4: Create Volume-Tracked, Self-Contact-Free Reference Mesh
 
-Switch to .NET 5.0.
+For Linux, switch to .NET 5.0.
 
 ```
 sudo apt-get install -y dotnet-sdk-5.0
@@ -180,11 +182,15 @@ Navigate to the `tvm-editing` directory and build:
 
 ```
 cd ../tvm-editing
-dotnet new globaljson --sdk-version 5.0.408
+dotnet new globaljson --sdk-version 5.0.408 
 dotnet build TVMEditor.sln --configuration Release --no-incremental
 ```
 
+(For Windows the writer used .NET 8.0 and there is no need to install .NET 5.0 and run `dotnet new globaljson --sdk-version 5.0.408 `. If you encounter error regarding .NET version, try to install the correct version on your machine.)
+
 Run the mesh deformation:
+
+for Windows:
 
 ```
 TVMEditor.Test/bin/Release/net5.0/TVMEditor.Test.exe basketball 1 11 20 "./TVMEditor.Test/bin/Release/net5.0/Data/basketball_player_1995/" "./TVMEditor.Test/bin/Release/net5.0/output/basketball_player_1995/"
@@ -205,7 +211,7 @@ cd ../TVMC
 Extract the reference mesh:
 
 ```
-python ./extract_reference_mesh.py --dataset basketball_player --num_frames 10 --num_centers 1995 --inputDir ../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/basketball_player_1995/output/ --outputDir ../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/basketball_player_1995/reference_mesh/ --firstIndex 11 --lastIndex 20
+python ./extract_reference_mesh.py --dataset basketball_player --num_frames 10 --num_centers 1995 --inputDir ../tvm-editing/TVMEditor.Test/bin/Release/net5.0/output/basketball_player_1995/output/ --outputDir ../tvm-editing/TVMEditor.Test/bin/Release/net5.0/Data/basketball_player_1995/reference_mesh/ --firstIndex 11 --lastIndex 20 --key 9
 ```
 
 ## Step 5: Deform Reference Mesh to Each Mesh in the Group
@@ -232,7 +238,7 @@ TVMEditor.Test/bin/Release/net5.0/TVMEditor.Test basketball 2 11 20 "./TVMEditor
 
 ## Step 6: Compute Displacement Fields
 
-Navigate to TVMC root again:
+Navigate to ./TVMC again:
 
 ```
 cd ../TVMC
@@ -249,6 +255,12 @@ The displacement fields are stored as `.ply` files. For compression, Draco is us
 Tips: So far, we've got everything we need for a group of time-varying mesh compression (A self-contact-free reference mesh and displacement fields). You can use any other compression methods to deal with them. For example, you may use video coding to compress displacements to get even better compression performance.
 
 ## Step 7: Compression and Evaluation
+
+Navigate to TVMC root:
+
+```
+cd ..
+```
 
 Clone and build Draco:
 
@@ -278,10 +290,10 @@ Draco paths (please change based on your project):
 - Encoder: `./draco/build/Release/draco_encoder.exe` / `./draco/build/draco_encoder` 
 - Decoder: `./draco/build/Release/draco_decoder.exe` / `./draco/build/draco_decoder` 
 
-Navigate to TVMC root again:
+Navigate to TVMC:
 
 ```
-cd ./TVMC
+cd ../../TVMC
 ```
 
 Run the evaluation:
@@ -296,3 +308,26 @@ For Linux:
 python ./evaluation.py --dataset basketball_player --num_frames 10 --num_centers 1995 --firstIndex 11 --lastIndex 20 --fileNamePrefix basketball_player_fr0 --encoderPath ../draco/build/draco_encoder --decoderPath ../draco/build/draco_decoder --qp 10 --outputPath ./basketball_player_outputs
 ```
 
+
+
+## Generate figures
+
+We provide scripts to generate the figures presented in the paper based on the collected results.
+
+- **If you are running the Docker image** (i.e., you have results for all four datasets), execute:
+
+  ```
+  python ./objective_results_all.py
+  ```
+
+  This script uses the newly generated results to produce Rate-Distortion (RD) performance and Cumulative Distribution Function (CDF) figures.
+
+- **If you followed the recommended commands above** (which generate results only for the *Basketball Player* dataset), 
+
+  ```
+  python ./objective_results_basic.py
+  ```
+
+​		This version primarily uses mostly the original data from the paper to replicate the key figures.
+
+This provides a straightforward way to replicate the results.

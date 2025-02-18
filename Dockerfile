@@ -42,11 +42,11 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
 ENV PATH="/opt/conda/bin:$PATH"
 
 # Create and activate conda environment
-RUN conda create -n open3d_env python=3.8 numpy open3d=0.18.0 scikit-learn scipy trimesh=4.1.0 -c conda-forge
+RUN conda create -n open3d_env python=3.8 numpy open3d=0.18.0 scikit-learn scipy matplotlib trimesh=4.1.0 -c conda-forge
 
 # Clone the project
 WORKDIR /app
-RUN git clone https://github.com/frozzzen3/TVMC.git
+RUN git clone https://github.com/SINRG-Lab/TVMC.git
 
 WORKDIR /app/TVMC
 RUN git clone https://github.com/google/draco.git && \
