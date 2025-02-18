@@ -1,11 +1,14 @@
 import matplotlib.pyplot as plt
 import open3d as o3d
 import numpy as np
-
+import os
 import subprocess
 import json
 import numpy as np
 
+path = "./figures"
+if not os.path.exists(path):
+    os.makedirs(path)
 param_sets = []
 datasets = ["dancer", "basketball_player", "mitch", "thomas"]
 for qp in range (7, 17):
