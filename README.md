@@ -330,6 +330,6 @@ We provide scripts to generate the figures presented in the paper based on the c
   python ./objective_results_basic.py
   ```
 
-​		This version primarily uses mostly the original data from the paper to replicate the key figures.
+  This version primarily uses mostly the original data from the paper to replicate the key figures.
 
 This provides a straightforward way to replicate the results.
