@@ -314,13 +314,15 @@ python ./evaluation.py --dataset basketball_player --num_frames 10 --num_centers
 
 We provide scripts to generate the figures presented in the paper based on the collected results.
 
-- **If you are running the Docker image** (i.e., you have results for all four datasets), execute:
+- **If you have went through above steps for all four datasets**, execute:
 
   ```
   python ./objective_results_all.py
   ```
 
   This script uses the newly generated results to produce Rate-Distortion (RD) performance and Cumulative Distribution Function (CDF) figures.
+
+  (in the Docker image you may not be able to see figures, but you can see the bitrates and D2-PSNR values in the log)
 
 - **If you followed the recommended commands above** (which generate results only for the *Basketball Player* dataset), 
 
