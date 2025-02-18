@@ -2,6 +2,10 @@ import matplotlib.pyplot as plt
 import open3d as o3d
 import numpy as np
 
+
+path = "./figures"
+if not os.path.exists(path):
+    os.makedirs(path)
 ## Figure 4 (a) RD performance - Dancer
 Bitrates = [3.31, 3.99, 4.88, 6.13, 7.73, 9.44, 11.23, 12.81, 13.10, 13.13, 13.23, 13.43, 13.89, 20.08]
 D2_PSNR = [48.23, 54.34, 60.37, 66.54, 72.52, 78.56, 84.58, 90.57, 96.58, 102.63, 108.64, 114.65, 120.71, 126.24]
