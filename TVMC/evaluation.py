@@ -8,6 +8,7 @@ import os
 import time
 from scipy.spatial.distance import directed_hausdorff
 import re
+import json
 
 
 parser = argparse.ArgumentParser(description="Evaluation.")
@@ -420,3 +421,4 @@ print("average D1:", np.mean(d1s))
 print("average D2:", np.mean(d2s))
 print("average log10 of mse:", np.mean(mses))
 print("average log10 of rmse:", np.mean(rmses))
+print(json.dumps({"bitrate_mbps": bitrate_mbps, "d2s_mean": np.mean(d2s)}))
