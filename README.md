@@ -17,6 +17,12 @@ This repository contains the official authors implementation associated with the
   - `scipy`
   - `trimesh==4.1.0`
 
+Clone this project:
+
+```
+git clone https://github.com/SINRG-Lab/TVMC.git
+```
+
 ## Running with Docker
 
 Follow these steps to build and run the Docker image:
@@ -91,12 +97,6 @@ conda activate open3d_env
 For windows you can use Visual Studio to install .NET 7.0 and anaconda to create python environment.
 
 
-
-Clone this project:
-
-```
-git clone https://github.com/SINRG-Lab/TVMC.git
-```
 
 ## Step 1: As-Rigid-As-Possible (ARAP) Volume Tracking
 
@@ -322,7 +322,7 @@ We provide scripts to generate the figures presented in the paper based on the c
 
   This script uses the newly generated results to produce Rate-Distortion (RD) performance and Cumulative Distribution Function (CDF) figures.
 
-  (in the Docker image you may not be able to see figures, but you can see the bitrates and D2-PSNR values in the log)
+  (in the Docker image you may need to store generated figures locally using `docker cp`)
 
 - **If you followed the recommended commands above** (which generate results only for the *Basketball Player* dataset), 
 
